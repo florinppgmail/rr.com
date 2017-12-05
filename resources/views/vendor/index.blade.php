@@ -16,6 +16,11 @@
                 <div class="my-ads section">
                     <h2>Latest recommended referrals</h2>
                     <!-- ad-item -->
+
+                    <?php
+                    //var_dump($recommendedReferrals);
+                    ?>
+
                     @foreach($recommendedReferrals as $referral)
                         <div class="ad-item row" id="referral_box_{{$referral->id}}" style="min-height: 200px;">
                             <?php
@@ -186,7 +191,7 @@
                             setErrors(xhr.responseJSON);
                             showErrorNotification()
                         } else {
-                            alert('Something went totaly wrong, please contact the webmaster.')
+                            alert('Something went totally wrong, please contact the webmaster.')
                         }
                     }
                 });
@@ -271,7 +276,7 @@
                         /*setErrors(xhr.responseJSON);
                         showErrorNotification()*/
                     } else {
-                        alert('Something went totaly wrong, please contact the webmaster.')
+                        alert('Something went totally wrong, please contact the webmaster.')
                     }
                 }
             });
@@ -279,24 +284,27 @@
 
         function requestDetails(id) {
 
-            $.ajax({
-                url: 'vendor/referrals/' + id + '/details',
-                type: 'POST',
-                beforeSend: function (request) {
-                    request.setRequestHeader("X-CSRF-TOKEN", '{{ csrf_token() }}');
-                },
-                success: function (response) {
-                    window.location.replace('{{ route('vendor-dashboard') }}');
-                },
-                error: function (xhr) {
-                    if (xhr.status === 422) {
-                        /*setErrors(xhr.responseJSON);
-                        showErrorNotification()*/
-                    } else {
-                        alert('Something went totaly wrong, please contact the webmaster.')
+            var r = confirm("By choosing to view the details, you agree to contact the client in a timely manner.");
+            if (r == true) {
+                $.ajax({
+                    url: 'vendor/referrals/' + id + '/details',
+                    type: 'POST',
+                    beforeSend: function (request) {
+                        request.setRequestHeader("X-CSRF-TOKEN", '{{ csrf_token() }}');
+                    },
+                    success: function (response) {
+                        window.location.replace('{{ route('vendor-dashboard') }}');
+                    },
+                    error: function (xhr) {
+                        if (xhr.status === 422) {
+                            /*setErrors(xhr.responseJSON);
+                             showErrorNotification()*/
+                        } else {
+                            alert('Something went totally wrong, please contact the webmaster.')
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
     </script>

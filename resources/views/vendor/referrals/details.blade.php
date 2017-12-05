@@ -87,7 +87,7 @@
                                     }
                                 ]
                             }
-                        });
+                         });
                     },
 
                     onAuthorize: function(data, actions) {
@@ -146,7 +146,7 @@
                         /*setErrors(xhr.responseJSON);
                          showErrorNotification()*/
                     } else {
-                        alert('Something went totaly wrong, please contact the webmaster.')
+                        alert('Something went totally wrong, please contact the webmaster.')
                     }
                 }
             });

@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Auth;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class User
@@ -145,6 +146,8 @@ class User extends Authenticatable
 
     public function balance()
     {
+        Log::info('Checking user balance');
+
         if (Auth::user()->role_id == self::ROLE_MEMBER) {
             $balance = 0;
 

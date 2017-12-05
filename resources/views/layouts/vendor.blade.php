@@ -1,3 +1,26 @@
+<?php
+
+use App\User;
+use Illuminate\Support\Facades\Auth;
+use App\VendorPayStatus;
+use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\URL;
+
+$url = URL::to('/');
+$cur_user_id = Auth::user()->id;
+$vendor_pay_status = VendorPayStatus::where('user_id',$cur_user_id)->first();
+
+if(!(isset($vendor_pay_status)) || $vendor_pay_status->status == 3)
+{
+    header('Location: ' . $url . '/vendor/subscribe');
+    exit();
+}
+
+
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

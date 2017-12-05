@@ -41,6 +41,16 @@
     <!-- Template Developed By ThemeRegion -->
 
     @yield('style')
+
+    <style>
+        .banner-form {
+            display: none;
+        }
+
+        /*.banner h3 {*/
+            /*display: none;*/
+        /*}*/
+    </style>
 </head>
 <body>
 <!-- header -->
@@ -144,6 +154,9 @@
                         <li><a href="{{ route('register') }}">Member SIGNUP</a></li>
                     </ul><!-- sign-in -->
                 @endif
+                    <ul class="sign-in">
+                        <li><a href="{{ \Illuminate\Support\Facades\URL::to('/about') }}">About US</a></li>
+                    </ul>
 
 
                 {{--<a href="ad-post.html" class="btn">Post Your Ad</a>--}}
@@ -164,7 +177,7 @@
                 <!-- footer-widget -->
                 <div class="col-md-4">
                     <div class="footer-widget">
-                        <h3>Quik Links</h3>
+                        <h3>Quick Links</h3>
                         <ul>
                             <li><a href="{{ route('contactpage') }}">Contact Us</a></li>
                             <li><a href="{{ route('aboutpage') }}">About us</a></li>
@@ -219,7 +232,7 @@
 <script src="{{ asset('website/js/jquery.min.js') }}"></script>
 <script src="{{ asset('website/js/modernizr.min.js') }}"></script>
 <script src="{{ asset('website/js/bootstrap.min.js') }}"></script>
-<script src="http://maps.google.com/maps/api/js?key=AIzaSyAzzBy2rvTFejOlQHrI6xYI2OmRWfHWs2c"></script>
+<script src="https://maps.google.com/maps/api/js?key=AIzaSyAzzBy2rvTFejOlQHrI6xYI2OmRWfHWs2c"></script>
 <script src="{{ asset('website/js/gmaps.min.js') }}"></script>
 <script src="{{ asset('website/js/goMap.js') }}"></script>
 <script src="{{ asset('website/js/map.js') }}"></script>
@@ -229,6 +242,14 @@
 <script src="{{ asset('website/js/price-range.js') }}"></script>
 <script src="{{ asset('website/js/custom.js') }}"></script>
 <script src="{{ asset('website/js/switcher.js') }}"></script>
+
+<script>
+    $(document).ready(function () {
+
+
+
+    });
+</script>
 
     @yield('script')
 

@@ -11,6 +11,14 @@
 |
 */
 
+Route::post('paypal', [
+   'uses' => 'PaypalController@index'
+]);
+
+Route::get('paypal', [
+    'uses' => 'PaypalController@index'
+]);
+
 /************************ PUBLIC WEBSITE ROUTES **************************/
 /*************************************************************************/
 
@@ -106,6 +114,8 @@ Route::group([
         'middleware' => ['auth', 'vendor']
     ],
     function(){
+        Route::get('/subscribe', 'Vendor\SubscribeController@index');
+
         Route::get('/', 'Vendor\VendorController@index')->name('vendor-dashboard');
         Route::post('/', 'Vendor\VendorController@update')->name('vendor-update-vendor');
 

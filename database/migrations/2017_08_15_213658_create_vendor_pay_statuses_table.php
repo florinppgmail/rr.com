@@ -4,23 +4,28 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUsersTable extends Migration
+class CreateVendorPayStatusesTable extends Migration
 {
     /**
      * Run the migrations.
      *
      * @return void
      */
+
+    // Status:
+    //
+    // 1. Paid
+    // 2. Cancelled
+    // 3. Ended
+    //
+
+
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('vendor_pay_statuses', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->boolean('initial_vendor_payment')->default(false);
-            $table->string('subscriber_number')->nullable();
-            $table->rememberToken();
+            $table->integer('user_id')->unsigned()->nullable();
+            $table->integer('status')->unsigned()->nullable();
             $table->timestamps();
         });
     }
@@ -32,6 +37,6 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('vendor_pay_statuses');
     }
 }

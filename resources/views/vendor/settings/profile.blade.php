@@ -184,6 +184,7 @@
                 </div><!-- cta -->
             </div><!-- recommended-cta-->
         </div><!-- row -->
+
     </div>	@endsection
 
 @section('script')

@@ -14,7 +14,7 @@
                 <div class="col-sm-12 ">
                     <div class="banner">
                         <h1 class="title" style="text-shadow: 2px 1px lightgrey">Ryans Referrals  </h1>
-                        <h3 style="color: transparent">Search from over 15,00,000 classifieds & Post unlimited classifieds free!</h3>
+                        <h3 style="color: transparent">&nbsp;<br/></h3>
                         <!-- banner-form -->
                         <div class="banner-form">
                             <form method="post" id="searchForm" action="{{ url('/all/all') }}">
@@ -68,6 +68,9 @@
         </div><!-- world -->
 
         <div class="container">
+
+
+
             <div class="section category-ad text-center" style="width: 100%">
                 <ul class="category-list">
                     @foreach($categories as $category)
@@ -214,17 +217,30 @@
                         <h4 class="modal-title">{{ strtoupper($category->name) }}</h4>
                     </div>
                     <div class="modal-body">
-                        <ul class="list-group">
-                            @if($category->subcategories->count())
-                                @foreach($category->subcategories as $subcat)
-                                    <li class="list-group-item subcategory-item"  onclick="setFormAction('{{ url('/' . implode('-', explode(' ', $category->name)) . '/' . implode('-', explode(' ', $subcat->name))) }}')">
-                                        <a href=" {{ url( implode('-', explode(' ', $category->name)) . '/' . implode('-', explode(' ', $subcat->name))) }}">{{ $subcat->name }}</a>
-                                    </li>
-                                @endforeach
-                            @else
-                                <p>No subcategories</p>
-                            @endif
-                        </ul>
+
+                        <div class="loginMessage" style="display:none;">
+                            <div style="background-color: rgba(31,146,58,0.64); border-radius: 8px; padding: 18px; color:white;">
+                                <center>Signup Today!</center>
+                            </div>
+                        </div>
+
+                        <div class="subcategoryContainer">
+                            <ul class="list-group">
+                                @if($category->subcategories->count())
+                                    @foreach($category->subcategories as $subcat)
+                                        <li class="list-group-item subcategory-item"  onclick="setFormAction('{{ url('/' . implode('-', explode(' ', $category->name)) . '/' . implode('-', explode(' ', $subcat->name))) }}')">
+                                            {{--<a href=" {{ url( implode('-', explode(' ', $category->name)) . '/' . implode('-', explode(' ', $subcat->name))) }}">{{ $subcat->name }}</a>--}}
+                                            <a class="subcategoryLink" href="#">{{ $subcat->name }}</a>
+                                        </li>
+                                    @endforeach
+                                @else
+                                    <p>No subcategories</p>
+                                @endif
+                            </ul>
+                        </div>
+
+
+
                     </div>
                     {{--<div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -245,5 +261,23 @@
         function setFormAction(url){
             form.attr('action', url);
         }
+
+        $( document ).ready(function() {
+
+
+            //alert("Great job");
+
+            $(".subcategoryLink").click(function() {
+                $(".loginMessage").css("display","block");
+                $(".subcategoryContainer").toggle();
+            });
+
+            $(".modal").on("hidden.bs.modal", function () {
+                $(".loginMessage").css("display","none");
+                $(".subcategoryContainer").toggle();
+            });
+
+
+        });
     </script>
 @endsection

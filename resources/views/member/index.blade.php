@@ -92,11 +92,15 @@
                             <div class="form-group">
                                 <label>State</label>
                                 <select id="state" name="state" class="form-control">
+                                            <option value="FL">Florida</option>
                                     @foreach($states as $key => $state)
                                         {{-- @if($key === Auth::user()->profile->state)
                                              <option value="{{ $key }}" selected>{{ $state }}</option>
                                          @endif--}}
-                                        <option value="{{ $key }}">{{ $state }}</option>
+                                        @if($key!="FL")
+                                            <option value="{{ $key }}">{{ $state }}</option>
+                                        @endif
+
                                     @endforeach
                                 </select>
                                 <span id="message_state" class="help-block col-lg-offset-3 col-xs-offset-4"></span>

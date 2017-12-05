@@ -21,7 +21,7 @@
                         <div class="row">
                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 text-center">
                                 <div class="form-group">
-                                    <label style="width: inherit">Your ballance is : {{ $balance }} $</label>
+                                    <label style="width: inherit">Your balance is : {{ $balance }} $</label>
                                 </div>
                             </div>
                             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 ">
