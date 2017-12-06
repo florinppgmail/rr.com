@@ -21,10 +21,14 @@
 
                             <div class="form-group">
                                 <label>Referr myself</label>
-                                <select id="auto_referr" name="auto_referr" class="form-control">
+                                <select id="auto_referr" name="auto_referr" class="form-control" {{ !$isLocationSet ? 'disabled' : '' }}>
                                     <option value="no" selected> No</option>
                                     <option value="yes"> Yes</option>
                                 </select>
+                                @if(!$isLocationSet)
+                                    <span id="message_auto_referr" class="help-block col-lg-offset-3 col-xs-offset-4">To referr yourself, you need first to set your address on <a
+                                                href="{{ route('member-settings-profile') }}">Profile</a> page.</span>
+                                @endif
                             </div>
                             <hr>
 
@@ -74,10 +78,33 @@
                             </div>
 
                             <div class="form-group">
+                                <label>Input the referral address</label>
+                                <input name="autocomplete" id="autocomplete" type="text" class="form-control" onFocus="geolocate()">
+                                <span id="message_autocomplete" class="help-block"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Address</label>
+                                <input type="text" class="form-control" id="address" name="address" disabled>
+                                <span id="message_address" class="help-block col-lg-offset-3 col-xs-offset-4"></span>
+                            </div>
+
+                            <div class="form-group">
                                 <label>City</label>
-                                <input type="city" class="form-control" id="city" name="city" placeholder="Enter city">
+                                <input type="text" class="form-control" id="city" name="city" disabled>
                                 <span id="message_city" class="help-block col-lg-offset-3 col-xs-offset-4"></span>
                             </div>
+
+                            <div class="form-group">
+                                <label>State</label>
+                                <input type="text" class="form-control" id="state" name="state" disabled>
+                                <span id="message_state" class="help-block col-lg-offset-3 col-xs-offset-4"></span>
+                            </div>
+
+                            <input type="hidden" id="gps_lat">
+                            <input type="hidden" id="gps_lng">
+                            <span style="visibility: hidden" id="message_gps_lat" class="help-block"> </span>
+                            <span style="visibility: hidden" id="message_gps_lng" class="help-block"> </span>
 
                             <div class="form-group">
                                 <label>Best contact time</label>
@@ -88,25 +115,6 @@
                                 </select>
                                 <span id="message_contact_time" class="help-block col-lg-offset-3 col-xs-offset-4"></span>
                             </div>
-
-                            <div class="form-group">
-                                <label>State</label>
-                                <select id="state" name="state" class="form-control">
-                                            <option value="FL">Florida</option>
-                                    @foreach($states as $key => $state)
-                                        {{-- @if($key === Auth::user()->profile->state)
-                                             <option value="{{ $key }}" selected>{{ $state }}</option>
-                                         @endif--}}
-                                        @if($key!="FL")
-                                            <option value="{{ $key }}">{{ $state }}</option>
-                                        @endif
-
-                                    @endforeach
-                                </select>
-                                <span id="message_state" class="help-block col-lg-offset-3 col-xs-offset-4"></span>
-                            </div>
-
-
 
                             <div class="form-group">
                                 <label>Urgent ?</label>
@@ -184,20 +192,26 @@
     <script src="{{ asset('dashboard/vendors/bower_components/moment/min/moment.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('dashboard/vendors/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js') }}"></script>
     <script src="{{ asset('dashboard/vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.js') }}"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDvN2aWCmTBbYkTLns6R-ttDD_KM-QKwgs&libraries=places&callback=initAutocomplete"
+            async defer></script>
 
     <script>
         $(document).ready(function() {
             var datepicker, successNotification = $('#successNotification'), addReferralForm = $('#addReferralForm'),
-                formFieldsMessage = ['name', 'category_id', 'email', 'phone', 'description',
-                    'needed_at', 'contact_time','city', 'state', 'urgent'], currentUser = {};
+                formFieldsMessage = ['name', 'category_id', 'email', 'phone', 'description', 'needed_at',
+                    'contact_time', 'address', 'city', 'state', 'gps_lat', 'gps_lng', 'urgent'],
+                currentUser = {};
 
             currentUser = {
                 name : '{{ Auth::user()->name }}',
                 email : '{{ Auth::user()->email }}',
                 phone : '{{ Auth::user()->profile->phone }}',
                 description : '{{ Auth::user()->profile->description }}',
+                address : '{{ Auth::user()->profile->address }}',
                 city : '{{ Auth::user()->profile->city }}',
                 state : '{{ Auth::user()->profile->state }}',
+                gps_lat : '{{ Auth::user()->profile->gps_lat }}',
+                gps_lng : '{{ Auth::user()->profile->gps_lng }}'
             };
 
             successNotification.toggle();
@@ -322,5 +336,84 @@
             }
         });
 
+        // Google Places
+
+        // This example displays an address form, using the autocomplete feature
+        // of the Google Places API to help users fill in the information.
+
+        // This example requires the Places library. Include the libraries=places
+        // parameter when you first load the API. For example:
+        // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+
+        var autocomplete;
+
+        function initAutocomplete() {
+            // Create the autocomplete object, restricting the search to geographical
+            // location types.
+            autocomplete = new google.maps.places.Autocomplete(
+                /** @type {!HTMLInputElement} */(document.getElementById('autocomplete')),
+                {types: ['geocode']});
+
+            // When the user selects an address from the dropdown, populate the address
+            // fields in the form.
+            autocomplete.addListener('place_changed', fillInAddress);
+        }
+
+        function fillInAddress() {
+            // Get the place details from the autocomplete object.
+            var place = autocomplete.getPlace();
+
+
+            // Get each component of the address from the place details
+            // and fill the corresponding field on the form.
+
+            document.getElementById('address').value = '';
+            document.getElementById('city').value = '';
+            document.getElementById('state').value = '';
+
+            for (var i = 0; i < place.address_components.length; i++) {
+                var addressType = place.address_components[i].types[0];
+                shortValue = place.address_components[i].short_name;
+                longValue = place.address_components[i].long_name;
+
+                switch (addressType) {
+                    case 'locality':
+                        document.getElementById('city').value = longValue;
+                        break;
+                    case 'administrative_area_level_1':
+                        document.getElementById('state').value = shortValue;
+                        break;
+                    case 'route':
+                        locationAddress = longValue;
+                        document.getElementById('address').value = longValue;
+                        break;
+                }
+
+                // setting the gps coordinates too
+                document.getElementById('gps_lat').value = place.geometry.location.lat();
+                document.getElementById('gps_lng').value = place.geometry.location.lng();
+
+            }
+            //document.getElementById(addressType).value = val;
+        }
+
+        // Bias the autocomplete object to the user's geographical location,
+        // as supplied by the browser's 'navigator.geolocation' object.
+        function geolocate() {
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var geolocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    var circle = new google.maps.Circle({
+                        center: geolocation,
+                        radius: position.coords.accuracy
+                    });
+                    autocomplete.setBounds(circle.getBounds());
+                });
+            }
+        }
     </script>
 @endsection

@@ -15,7 +15,7 @@
                     <!-- ad-item -->
                     <div class="row">
                         <div class="col-md-11 col-sm-10 col-xs-10">
-                            <select id="category_id" name="category_id" class="form-control">
+                            <select id="category_id" name="category_id" class="form-control" {{ !$isLocationSet ? 'disabled' : '' }}>
                                 <option value="">Please select a category</option>
                                 @foreach($categories as $category)
                                     @if($category->subcategories()->count())))
@@ -26,6 +26,10 @@
                                     @endif
                                 @endforeach
                             </select>
+                            @if(!$isLocationSet)
+                                <span id="message_category_id" class="help-block">In order to subscribe to categories, you need to set your location on your <a
+                                            href="{{ route('vendor-settings-profile') }}">Profile</a> page.</span>
+                            @endif
                         </div>
                         <div class="col-md-1 col-sm-1 col-xs-1">
                             <a onclick="addCategory()"><i class="fa fa-plus-circle fa-3x"></i></a>

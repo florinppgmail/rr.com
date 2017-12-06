@@ -36,6 +36,7 @@ class UpdateVendor extends FormRequest
                     $query->where('id', '!=', Auth::user()->id);
                 }),
             ],
+            'range' => 'required|integer|between:1,100'
         ];
     }
 }

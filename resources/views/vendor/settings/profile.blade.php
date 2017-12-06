@@ -32,6 +32,12 @@
                                 <span id="message_email" class="help-block col-lg-offset-3 col-xs-offset-4"></span>
                             </div>
 
+                            <div class="form-group">
+                                <label>Discovery range <br>(1-100miles) </label>
+                                <input name="range" id="range" type="text" class="form-control" value="{{ Auth::user()->range }}">
+                                <span id="message_range" class="help-block col-lg-offset-3 col-xs-offset-4"></span>
+                            </div>
+
                             <div id="personalInfoSuccessNotification" class="alert alert-success alert-dismissable alert-style-1" style="display: none">
                                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                                 <i class="zmdi zmdi-check"></i>Details updated.
@@ -93,36 +99,46 @@
                         <h2>Address (undisclosed)</h2>
                         <!-- form -->
                         <div class="form-group">
-                            <label>Address</label>
-                            <input name="address" id="address" type="text" class="form-control" placeholder="Your address" value="{{ Auth::user()->profile->address }}">
+                            <label>Input your address</label>
+                            <input name="autocomplete" id="autocomplete" type="text" class="form-control" onFocus="geolocate()">
                             <span id="message_address" class="help-block"></span>
                         </div>
 
                         <div class="form-group">
-                            <label>City</label>
-                            <input name="city" id="city" type="text" class="form-control" placeholder="Your city" value="{{ Auth::user()->profile->city }}">
-                            <span id="message_city" class="help-block"></span>
+                            <label>Address</label>
+                            <input name="address" id="address" type="text" class="form-control" value="{{ Auth::user()->profile->address }}" disabled>
+                            <span id="message_address" class="help-block"></span>
                         </div>
 
                         <div class="form-group">
                             <label>Zip</label>
-                            <input name="zip" id="zip"  type="text" class="form-control" placeholder="Zip Code" value="{{ Auth::user()->profile->zip }}">
+                            <input name="zip" id="zip"  type="text" class="form-control" value="{{ Auth::user()->profile->zip }}" disabled>
                             <span id="message_zip" class="help-block"></span>
                         </div>
 
                         <div class="form-group">
+                            <label>City</label>
+                            <input name="city" id="city" type="text" class="form-control" value="{{ Auth::user()->profile->city }}" disabled>
+                            <span id="message_city" class="help-block"></span>
+                        </div>
+
+                        <div class="form-group">
                             <label>State</label>
-                            <select id="state" name="state" class="form-control">
-                                @foreach($states as $key => $state)
-                                    @if($key === Auth::user()->profile->state)
-                                        <option value="{{ $key }}" selected>{{ $state }}</option>
-                                    @else
-                                        <option value="{{ $key }}">{{ $state }}</option>
-                                    @endif
-                                @endforeach
-                            </select>
+                            <input name="state" id="state"  type="text" class="form-control" value="{{ Auth::user()->profile->state }}" disabled>
                             <span id="message_state" class="help-block"> </span>
                         </div>
+
+                        <div class="form-group">
+                            <label>Country</label>
+                            <input name="country" id="country"  type="text" class="form-control" value="{{ Auth::user()->profile->country }}" disabled>
+                            <span id="message_country" class="help-block"> </span>
+                        </div>
+
+                        <input type="hidden" id="gps_lat">
+                        <input type="hidden" id="gps_lng">
+                        <span style="visibility: hidden" id="message_gps_lat" class="help-block"> </span>
+                        <span style="visibility: hidden" id="message_gps_lng" class="help-block"> </span>
+
 
                         <div id="profileInfoSuccessNotification" class="alert alert-success alert-dismissable alert-style-1" style="display: none">
                             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -188,15 +204,19 @@
     </div>	@endsection
 
 @section('script')
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDvN2aWCmTBbYkTLns6R-ttDD_KM-QKwgs&libraries=places&callback=initAutocomplete"
+            async defer></script>
     <script>
+        var submittedForm,
+            successNotification = $('#successNotification'),
+            updateUserForm = $('#updateUserForm'),
+            updateUserProfileForm = $('#updateUserProfileForm'),
+            updateUserFormFields = ['name', 'email', 'range'],
+            updateUserProfileFormFields = ['description',
+                'address', 'city', 'state', 'zip', 'country', 'gps_lat', 'gps_lng',
+                'website', 'facebook', 'linkedin', 'twitter', 'youtube'];
+
         $(document).ready(function() {
-            var submittedForm,
-                successNotification = $('#successNotification'),
-                updateUserForm = $('#updateUserForm'),
-                updateUserProfileForm = $('#updateUserProfileForm'),
-                updateUserFormFields = ['name', 'email'],
-                updateUserProfileFormFields = ['description', 'address', 'city', 'state', 'zip',
-                    'website', 'facebook', 'linkedin', 'twitter', 'youtube'];
 
             $('#cancelButtonUserForm, #cancelButtonProfileForm').on('click', function(e){
                 window.location.replace('/vendor');
@@ -255,6 +275,7 @@
                 submittedForm = formType === 'user' ? updateUserFormFields : updateUserProfileFormFields;
 
                 $.each(submittedForm, function(idx,val){
+                    console.log(val);
                     if($('#'+val).val().length)
                         data[val] = $('#'+val).val();
                 });
@@ -315,5 +336,94 @@
                 }, 2000);
             }
         });
+
+        // Google Places
+
+        // This example displays an address form, using the autocomplete feature
+        // of the Google Places API to help users fill in the information.
+
+        // This example requires the Places library. Include the libraries=places
+        // parameter when you first load the API. For example:
+        // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+
+        var autocomplete;
+
+        function initAutocomplete() {
+            // Create the autocomplete object, restricting the search to geographical
+            // location types.
+            autocomplete = new google.maps.places.Autocomplete(
+                /** @type {!HTMLInputElement} */(document.getElementById('autocomplete')),
+                {types: ['geocode']});
+
+            // When the user selects an address from the dropdown, populate the address
+            // fields in the form.
+            autocomplete.addListener('place_changed', fillInAddress);
+        }
+
+        function fillInAddress() {
+            // Get the place details from the autocomplete object.
+            var place = autocomplete.getPlace();
+
+
+            // Get each component of the address from the place details
+            // and fill the corresponding field on the form.
+            $.each(updateUserProfileFormFields, function(idx, itm){
+                if(itm !== 'description' && typeof document.getElementById(itm) !== 'undefined'){
+                    document.getElementById(itm).value = '';
+                }
+
+            });
+
+            for (var i = 0; i < place.address_components.length; i++) {
+                var addressType = place.address_components[i].types[0];
+                shortValue = place.address_components[i].short_name;
+                longValue = place.address_components[i].long_name;
+
+                switch (addressType) {
+                    case 'locality':
+                        document.getElementById('city').value = longValue;
+                        break;
+                    case 'administrative_area_level_1':
+                        document.getElementById('state').value = shortValue;
+                        break;
+                    case 'country':
+                        document.getElementById('country').value = longValue;
+                        break;
+                    case 'route':
+                        locationAddress = longValue;
+                        document.getElementById('address').value = longValue;
+                        break;
+                    case 'postal_code':
+                        document.getElementById('zip').value = shortValue;
+                        break;
+
+                }
+
+                // setting the gps coordinates too
+                document.getElementById('gps_lat').value = place.geometry.location.lat();
+                document.getElementById('gps_lng').value = place.geometry.location.lng();
+
+            }
+            //document.getElementById(addressType).value = val;
+        }
+
+        // Bias the autocomplete object to the user's geographical location,
+        // as supplied by the browser's 'navigator.geolocation' object.
+        function geolocate() {
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var geolocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    var circle = new google.maps.Circle({
+                        center: geolocation,
+                        radius: position.coords.accuracy
+                    });
+                    autocomplete.setBounds(circle.getBounds());
+                });
+            }
+        }
     </script>
 @endsection

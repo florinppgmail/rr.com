@@ -18,6 +18,9 @@ class MemberProfile extends Model
         'city',
         'state',
         'zip',
+        'country',
+        'gps_lat',
+        'gps_lng',
         'phone'
     ];
 

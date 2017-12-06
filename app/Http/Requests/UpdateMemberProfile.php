@@ -29,6 +29,7 @@ class UpdateMemberProfile extends FormRequest
             'city' => 'string|max:50',
             'state' => 'string|max:2',
             'zip' => 'string|max:11',
+            'country' => 'string|max:255',
             'phone' => 'string|max:15',
         ];
     }

@@ -22,6 +22,7 @@ class MemberController extends Controller
             'totalSoldReferrals' => Auth::user()->referrals()->sold()->count(),
             'totalExpiredReferrals' => Auth::user()->referrals()->expired()->count(),
             'referralsSold' => Auth::user()->referrals()->sold()->limit(10)->get(),
+            'isLocationSet' => (Auth::user()->profile->gps_lat > 0 && Auth::user()->profile->gps_lng) ? true : false,
         ]);
     }
 

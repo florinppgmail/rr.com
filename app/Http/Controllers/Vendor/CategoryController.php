@@ -19,6 +19,7 @@ class CategoryController extends Controller
             'vendorCategories' => Auth::user()->categories()->get(),
             'subscribedCategoriesCount' => Auth()->user()->categories()->count(),
             'referralsBoughtCount' => Auth::user()->referrals()->count(),
+            'isLocationSet' => (Auth::user()->profile->gps_lat > 0 && Auth::user()->profile->gps_lng > 0) ? true : false,
         ]);
     }
 

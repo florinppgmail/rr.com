@@ -23,6 +23,9 @@ class VendorProfile extends Model
         'city',
         'state',
         'zip',
+        'country',
+        'gps_lat',
+        'gps_lng',
         'phone',
         'membership_expires_at',
         'trial_ends_at'

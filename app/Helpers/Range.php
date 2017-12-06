@@ -2,41 +2,32 @@
 
 namespace App\Helpers;
 
-use GuzzleHttp\Client;
 
 class Range {
     
-    public static function isIn($origin, $destination, $miles)
+    public static function isIn($lat1, $lng1, $lat2, $lng2, $distance)
     {
-        $fixed_origin = self::fixLocationString($origin);
-        $fixed_destination = self::fixLocationString($destination);
+        if(self::calculateDistance($lat1, $lng1, $lat2, $lng2) <= $distance)
+            return true;
 
-        $client = new Client();
-
-        $response = $client->request('GET', 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=' . $fixed_origin . '&destinations=' . $fixed_destination . '&key=AIzaSyCdSwPLnAX1C7wdjdmq4CPomvMVs7Melcw');
-        $data = json_decode(($response->getBody()),true);
-
-        // if anything happens and there's no distance returned from GoogleApis, we return false
-        if(!isset($data['rows'][0]['elements'][0]['distance']))
-            return false;
-
-        $distance = str_replace(" mi","",str_replace(",","",$data['rows'][0]['elements'][0]['distance']['text']));
-
-        return ($distance<=$miles) ? true : false;
+        return false;
     }
 
-    private static function fixLocationString($location)
+    protected static function calculateDistance($lat1, $lng1, $lat2, $lng2, $unit = 'M')
     {
-        $location_data = explode(" ", $location);
+        $theta = $lng1 - $lng2;
+        $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+        $dist = acos($dist);
+        $dist = rad2deg($dist);
+        $miles = $dist * 60 * 1.1515;
+        $unit = strtoupper($unit);
 
-        $fixed_location = null;
-
-        foreach($location_data as $item) {
-            $fixed_location.= ($item . "+");
+        if ($unit == "K") {
+            return ($miles * 1.609344);
+        } else if ($unit == "N") {
+            return ($miles * 0.8684);
+        } else {
+            return $miles;
         }
-
-        trim($fixed_location, "+");
-
-        return $fixed_location;
     }
 }

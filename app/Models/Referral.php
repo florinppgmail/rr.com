@@ -18,7 +18,7 @@ class Referral extends Model
      */
     protected $fillable = [
         'name', 'user_id', 'category_id', 'email', 'description', 'code', 'needed_at', 'contact_time',
-        'phone', 'city', 'state', 'urgent', 'removable', 'sold_at',
+        'phone', 'address', 'city', 'state', 'gps_lat', 'gps_lng', 'urgent', 'removable', 'sold_at',
     ];
 
     /**
