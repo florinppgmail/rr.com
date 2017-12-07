@@ -31,16 +31,23 @@ class NotifyInterestedVendors
         $vendors = $event->referral->category->vendors()->get();
 
         foreach ($vendors as $vendor){
-            $isInRange = Range::isIn(
-                $event->referral->gps_lat, $event->referral->gps_lng,
-                $vendor->profile->gps_lat, $vendor->profile->gps_lng,
-                $vendor->range);
+            $vendorProfile = $vendor->profile;
 
-            if($isInRange){
-                $vendor->recommendations()->attach($event->referral->id);
-                Mail::to($vendor)->send(new ReferralRecommended($vendor, $event->referral));
+            if($vendorProfile->gps_lat == 0 || $vendorProfile->gps_lng == 0){
+                // if the vendor profile doesn't have a
+                // correct address we skip the notification
             }
+            else{
+                $isInRange = Range::isIn(
+                    $event->referral->gps_lat, $event->referral->gps_lng,
+                    $vendorProfile->gps_lat, $vendorProfile->gps_lng,
+                    $vendor->range);
 
+                if($isInRange){
+                    $vendor->recommendations()->attach($event->referral->id);
+                    Mail::to($vendor)->send(new ReferralRecommended($vendor, $event->referral));
+                }
+            }
         }
     }
 }
